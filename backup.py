@@ -36,7 +36,7 @@ headers = {
 }
 
 payload = {
-    "message": f"Backup {datetime.now().strftime("%Y-%m-%d")}",
+    "message": f"Backup {datetime.now().strftime('%Y-%m-%d')}",
     "content": content
 }
 
