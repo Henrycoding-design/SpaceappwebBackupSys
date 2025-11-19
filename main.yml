@@ -1,0 +1,17 @@
+services:
+  - type: worker
+    name: db-backup-worker
+    env: python
+    region: singapore
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python backup.py"
+
+    cron:
+      - name: monthly-backup
+        schedule: "0 0 1 * *" # First day of the month at 00:00 UTC
+        command: "python backup.py"
+envVars:
+  - key: DATABASE_URL
+    fromDatabase:
+      name: spaceappwebdb
+      property: connectionString
