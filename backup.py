@@ -13,7 +13,7 @@ subprocess.run(
      "--clean",
      db_url, 
      "-f", filename
-     ], check=True
+     ], check=True, capture_output=True, text=True
 )
 
 print("Backup generated:", filename)
