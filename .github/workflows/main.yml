@@ -2,7 +2,7 @@ name: Monthly DB Backup
 
 on:
   schedule:
-    - cron: "0 0 1 * *" # First day of month at 00:00 UTC
+    - cron: "0 0 */7 * *" # Every 7 days at 00:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -13,15 +13,15 @@ jobs:
     - name: Checkout this repo
       uses: actions/checkout@v3
 
-    - name: Install PostgreSQL 17 client
-      run: |
-        sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-        curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-        sudo apt-get update
-        sudo apt-get install -y postgresql-client-17
-        echo "/usr/lib/postgresql/17/bin" >> $GITHUB_PATH
-        /usr/lib/postgresql/17/bin/pg_dump --version
-        pg_dump --version
+    # - name: Install PostgreSQL 17 client
+    #   run: |
+    #     sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+    #     curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    #     sudo apt-get update
+    #     sudo apt-get install -y postgresql-client-17
+    #     echo "/usr/lib/postgresql/17/bin" >> $GITHUB_PATH
+    #     /usr/lib/postgresql/17/bin/pg_dump --version
+    #     pg_dump --version
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -30,6 +30,24 @@ jobs:
 
     - name: Install dependencies
       run: pip install -r requirements.txt
+      
+    - name: Install PostgreSQL 18 client
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget gnupg
+        wget -qO - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+        echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client-18
+        
+    - name: Use PostgreSQL 18 tools
+      run: |
+        echo "/usr/lib/postgresql/18/bin" >> $GITHUB_PATH
+        
+    - name: Verify pg_dump version
+      run: |
+        which pg_dump
+        pg_dump --version
 
     - name: Run backup script
       env:
@@ -51,4 +69,3 @@ jobs:
         git add .
         git commit -m "Backup $(date -u)"
         git push https://${TOKEN}@github.com/Henrycoding-design/SpaceappwebBackupStore.git
-
