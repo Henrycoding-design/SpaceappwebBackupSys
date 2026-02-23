@@ -2,7 +2,7 @@ name: Monthly DB Backup
 
 on:
   schedule:
-    - cron: "0 0 */7 * *" # Every 7 days at 00:00 UTC
+    - cron: "0 0 */4 * *" # Every 4 days at 00:00 UTC
   workflow_dispatch:
 
 jobs:
