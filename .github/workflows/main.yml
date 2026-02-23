@@ -53,14 +53,14 @@ jobs:
       env:
         DATABASE_URL: ${{ secrets.RENDER_DATABASE_URL }}
         GITHUB_TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
-      run: |
+      run: | # Run the backup script, then set the BACKUP_FILE environment variable to the latest backup file
         python backup.py
-        echo "BACKUP_FILE=$(ls backup-*.sql)" >> $GITHUB_ENV
+        echo "BACKUP_FILE=$(ls -t backup-*.sql | head -n 1)" >> $GITHUB_ENV
 
     - name: Push backup to private backup repo
       env:
         TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
-      run: |
+      run: | # git clone the backup repo, copy the backup file, commit, and push
         git config --global user.email "actions@github.com"
         git config --global user.name "GitHub Actions"
         git clone https://${TOKEN}@github.com/Henrycoding-design/SpaceappwebBackupStore.git out

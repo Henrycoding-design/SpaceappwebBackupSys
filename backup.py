@@ -27,28 +27,28 @@ subprocess.run(
 
 print("Backup generated:", filename)
 
-# ====== Push to github ======
-import base64, requests
+# # ====== Push to github ====== // already handled in the workflow, no need to do it here
+# import base64, requests
 
-token = os.environ["GITHUB_TOKEN"]
-repo = "yourusername/backup-repo"
+# token = os.environ["GITHUB_TOKEN"]
+# repo = "Henrycoding-design/SpaceappwebBackupStore"
 
-# encode file
-with open(filename, "rb") as f:
-    content = base64.b64encode(f.read()).decode()
+# # encode file
+# with open(filename, "rb") as f:
+#     content = base64.b64encode(f.read()).decode()
 
-url = f"https://api.github.com/repos/{repo}/contents/{filename}"
+# url = f"https://api.github.com/repos/{repo}/contents/{filename}"
 
-headers = {
-    "Authorization": f"Bearer {token}",
-    "Accept": "application/vnd.github+json"
-}
+# headers = {
+#     "Authorization": f"Bearer {token}",
+#     "Accept": "application/vnd.github+json"
+# }
 
-payload = {
-    "message": f"Backup {datetime.now().strftime('%Y-%m-%d')}",
-    "content": content
-}
+# payload = {
+#     "message": f"Backup {datetime.now().strftime('%Y-%m-%d')}",
+#     "content": content
+# }
 
-# upload
-res = requests.put(url, json=payload, headers=headers)
-print(res.json())
+# # upload
+# res = requests.put(url, json=payload, headers=headers)
+# print(res.json())
