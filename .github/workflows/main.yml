@@ -5,13 +5,16 @@ on:
     - cron: "0 0 */4 * *" # Every 4 days at 00:00 UTC
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   backup:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout this repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # - name: Install PostgreSQL 17 client
     #   run: |
@@ -24,19 +27,27 @@ jobs:
     #     pg_dump --version
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.11
 
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
       
     - name: Install PostgreSQL 18 client
       run: |
         sudo apt-get update
-        sudo apt-get install -y wget gnupg
-        wget -qO - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-        echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+        sudo apt-get install -y wget gnupg lsb-release
+
+        wget -qO - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+          | gpg --dearmor \
+          | sudo tee /usr/share/keyrings/postgresql.gpg > /dev/null
+
+        echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+          | sudo tee /etc/apt/sources.list.d/pgdg.list
+
         sudo apt-get update
         sudo apt-get install -y postgresql-client-18
         
@@ -67,5 +78,5 @@ jobs:
         cp "$BACKUP_FILE" out/
         cd out
         git add .
-        git commit -m "Backup $(date -u)"
+        git commit -m "Backup $(date -u)" || echo "No changes to commit"
         git push https://${TOKEN}@github.com/Henrycoding-design/SpaceappwebBackupStore.git
